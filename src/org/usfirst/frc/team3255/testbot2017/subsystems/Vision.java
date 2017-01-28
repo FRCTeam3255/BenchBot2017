@@ -43,7 +43,7 @@ public class Vision extends Subsystem implements Runnable {
 		cameraServer.startAutomaticCapture(rearCamera);
 		
 		// create an output stream
-		outputStream = cameraServer.putVideo("Rectangle", 640, 480);
+		outputStream = cameraServer.putVideo("Selected Camera", 640, 480);
 		
 		// get the sinks for the front and rear camera
 		frontSink = cameraServer.getVideo(frontCamera);
