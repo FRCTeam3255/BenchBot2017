@@ -4,6 +4,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+import org.usfirst.frc.team3255.testbot2017.OI;
 
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
@@ -22,9 +23,14 @@ public class Vision extends Subsystem implements Runnable {
 	
 	private CvSink usbCameraSink = null;
 	
+	private CvSink frontSink = null;
+	private CvSink rearSink = null;
+	
 	private CvSource outputStream = null;
 		
 	private Thread visionThread = null;
+	
+	private boolean frontCamOn = true;
 	
 	public Vision() {
 		visionThread = new Thread(this);
@@ -34,35 +40,26 @@ public class Vision extends Subsystem implements Runnable {
 	
 	@Override
 	public void run() {
-		// create the front and rear cameras
-		frontCamera = new UsbCamera("Front Camera", 1);
-		rearCamera = new UsbCamera("Rear Camera", 2);
 		
-		// set the resolution of the front and rear cameras to 640x480
-		frontCamera.setResolution(640, 480);
-		rearCamera.setResolution(640, 480);
-
-		// get the global instance of the camera server
-		cameraServer = CameraServer.getInstance();
-		
-//		cameraServer.addCamera(frontCamera);
-//	    cameraServer.addCamera(rearCamera);
-
-	    // get a CvSink and connect it to the selected camera
-	    usbCameraSink = new CvSink("Selected Camera Sink");
-	    usbCameraSink.setSource(frontCamera);
-	    cameraServer.addServer(usbCameraSink);
-
-	    // create an output stream
-		outputStream = CameraServer.getInstance().putVideo("Selected Camera", 640, 480);
-				
-		// Mats are very memory expensive. Lets reuse this Mat.
-		Mat mat = new Mat();
+		UsbCamera camera1 = CameraServer.getInstance().startAutomaticCapture(0);
+        camera1.setResolution(320, 240);
+        camera1.setFPS(30);
+        UsbCamera camera2 = CameraServer.getInstance().startAutomaticCapture(1);
+        camera2.setResolution(320, 240);
+        camera2.setFPS(30);
+        
+        CvSink cvSink1 = CameraServer.getInstance().getVideo(camera1);
+        CvSink cvSink2 = CameraServer.getInstance().getVideo(camera2);
+        CvSource outputStream = CameraServer.getInstance().putVideo("Switcher", 320, 240);
+        
+        Mat image = new Mat();
 
 		// This cannot be 'true'. The program will never exit if it is. This
 		// lets the robot stop this thread when restarting robot code or
 		// deploying.
 		while (!Thread.interrupted()) {
+			
+			/*
 			// Tell the CvSink to grab a frame from the camera and put it
 			// in the source mat.  If there is an error notify the output.
 			if (usbCameraSink.grabFrame(mat) == 0) {
@@ -71,20 +68,44 @@ public class Vision extends Subsystem implements Runnable {
 				// skip the rest of the current iteration
 				continue;
 			}
+			
 			// Put a rectangle on the image
 			Imgproc.rectangle(mat, new Point(100, 100), new Point(400, 400),
 					new Scalar(255, 255, 255), 5);
 			// Give the output stream a new image to display
-			outputStream.putFrame(mat);
+			 */
+			
+			if(frontCamOn){
+                cvSink2.setEnabled(false);
+                cvSink1.setEnabled(true);
+                cvSink1.grabFrame(image);
+              } else{
+                cvSink1.setEnabled(false);
+                cvSink2.setEnabled(true);
+                cvSink2.grabFrame(image);     
+              }
+			
+			outputStream.putFrame(image);
 		}
 	}
 	
 	public void selectForwardCamera() {
+		frontCamOn = true;
+		
+		/*
+		usbCameraSink.setEnabled(false);
 		usbCameraSink.setSource(frontCamera);
+		usbCameraSink.setEnabled(true);
+		*/
 	}
 	
 	public void selectRearCamera() {
+		frontCamOn = false;
+		/*
+		usbCameraSink.setEnabled(false);
 		usbCameraSink.setSource(rearCamera);
+		usbCameraSink.setEnabled(true);
+		*/
 	}
 
 	@Override
