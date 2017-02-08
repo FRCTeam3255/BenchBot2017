@@ -21,7 +21,7 @@ public class Vision extends Subsystem implements Runnable {
 	
 	private CameraServer cameraServer = null;
 	
-	private CvSink usbCameraSink = null;
+	private VideoSink usbCameraSink = null;
 	
 	private CvSink frontSink = null;
 	private CvSink rearSink = null;
@@ -40,17 +40,21 @@ public class Vision extends Subsystem implements Runnable {
 	
 	@Override
 	public void run() {
+		cameraServer = CameraServer.getInstance();
 		
-		frontCamera = CameraServer.getInstance().startAutomaticCapture(0);
+		frontCamera = cameraServer.startAutomaticCapture(0);
+		
         frontCamera.setResolution(320, 240);
         frontCamera.setFPS(30);
-        rearCamera = CameraServer.getInstance().startAutomaticCapture(1);
+        
+        	rearCamera = cameraServer.startAutomaticCapture(1);
+		
         rearCamera.setResolution(320, 240);
         rearCamera.setFPS(30);
         
-        frontSink = CameraServer.getInstance().getVideo(frontCamera);
-        rearSink = CameraServer.getInstance().getVideo(rearCamera);
-        outputStream = CameraServer.getInstance().putVideo("Switcher", 320, 240);
+        frontSink = cameraServer.getVideo(frontCamera);
+        rearSink = cameraServer.getVideo(rearCamera);
+        outputStream = cameraServer.putVideo("Switcher", 320, 240);
         
         Mat image = new Mat();
 
@@ -76,11 +80,15 @@ public class Vision extends Subsystem implements Runnable {
 			 */
 			
 			if(frontCamOn){
+				rearCamera.setFPS(0);
                 rearSink.setEnabled(false);
+                frontCamera.setFPS(30);
                 frontSink.setEnabled(true);
                 frontSink.grabFrame(image);
               } else{
+            	frontCamera.setFPS(0);
                 frontSink.setEnabled(false);
+                rearCamera.setFPS(30);
                 rearSink.setEnabled(true);
                 rearSink.grabFrame(image);     
               }
