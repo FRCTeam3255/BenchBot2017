@@ -1,6 +1,10 @@
 package org.usfirst.frc.team3255.testbot2017.subsystems;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
@@ -73,13 +77,6 @@ public class Vision extends Subsystem implements Runnable {
 			}
 			*/
 			
-			/*
-			// ===== Drawing on image ===== //
-			// Put a rectangle on the image
-			Imgproc.rectangle(image, new Point(100, 100), new Point(400, 400),
-					new Scalar(255, 255, 255), 5);
-			*/
-			
 			// ===== Camera Selection ==== //
 			// Checks to see if boolean is set to true (changed in selecting methods)
 			/* To avoid bandwidth & stream errors, the current camera
@@ -91,6 +88,10 @@ public class Vision extends Subsystem implements Runnable {
                 frontCamera.setFPS(30);		//Sets FPS to 30 for front camera
                 frontSink.setEnabled(true); //Disables stream for rear camera
                 frontSink.grabFrame(image); //Grabs the frames from front camera
+                // ===== Drawing on image ===== //
+    			// Put a rectangle on the image
+                Imgproc.rectangle(image, new Point(50, 50), new Point(200, 200),
+    					new Scalar(255, 255, 255), 5);
               } 
 			else{
             	frontCamera.setFPS(0);		//Sets FPS to 0 for front camera
@@ -98,6 +99,10 @@ public class Vision extends Subsystem implements Runnable {
                 rearCamera.setFPS(30);		//Sets FPS to 30 for rear camera
                 rearSink.setEnabled(true);	//Disables stream for rear camera
                 rearSink.grabFrame(image);  //Grabs the frames from rear camera   
+                // ===== Drawing on image ===== //
+    			// Put a rectangle on the image
+    			Imgproc.rectangle(image, new Point(100, 100), new Point(400, 400),
+    					new Scalar(255, 255, 255), 5);
               }
 			
 			// ===== Output Steam to Dashboard ===== //
