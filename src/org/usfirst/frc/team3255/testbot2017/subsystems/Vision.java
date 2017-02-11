@@ -37,30 +37,34 @@ public class Vision extends Subsystem implements Runnable {
 	public void run() {
 		
 		// ===== Initializations ===== //
-		//Creates CameraServer
+		// get an instance of the CameraServer class
 		cameraServer = CameraServer.getInstance();
-		//Starts capture of the frontCamera
-		frontCamera = cameraServer.startAutomaticCapture(0);
-		//Sets resolution and frame rate of frontCamera
+
+		// create the front camera
+		frontCamera = new UsbCamera("Front Camera", 0);
+
+		// set the resolution and frame rate of the front camera
         frontCamera.setResolution(320, 240);
         frontCamera.setFPS(30);
-        //Starts capture of the rearCamera
-        rearCamera = cameraServer.startAutomaticCapture(1);
-		//Sets resolution and frame rate of rearCamera
+        
+        // create the rear camera
+        rearCamera = new UsbCamera("Rear Camera", 1);
+
+        // set the resolution and frame rate of the rear camera
         rearCamera.setResolution(320, 240);
         rearCamera.setFPS(30);
         
-        //Creates sinks (steams) and have them get video from their respective cameras
+        // create CvSinks to get video frames from each camera
         frontSink = cameraServer.getVideo(frontCamera);
         rearSink = cameraServer.getVideo(rearCamera);
-        //Creates outPutStream called "Switcher" which will be put on the dashboard
-        outputStream = cameraServer.putVideo("Switcher", 320, 240);
+        
+        // create an outPutStream to write video the dashboard
+        outputStream = cameraServer.putVideo("Switcher3", 320, 240);
         
         //Creates a mat to hold image
         Mat image = new Mat();
-
         
-        				////======= Thread Loop ======////
+        ////======= Thread Loop ======////
 		// This cannot be 'true'. The program will never exit if it is. This
 		// lets the robot stop this thread when restarting robot code or
 		// deploying.
@@ -82,7 +86,7 @@ public class Vision extends Subsystem implements Runnable {
 			/* To avoid bandwidth & stream errors, the current camera
 			FPS must be set to 0 and its sink must be disabled before
 			the new camera's sink is enabled and its FPS is set to 30. */
-			if(frontCamOn){
+			if(frontCamOn) {
 				rearCamera.setFPS(0);		//Sets FPS to 0 for rear camera
                 rearSink.setEnabled(false); //Disables stream for rear camera 
                 frontCamera.setFPS(30);		//Sets FPS to 30 for front camera
@@ -93,7 +97,7 @@ public class Vision extends Subsystem implements Runnable {
                 Imgproc.rectangle(image, new Point(50, 50), new Point(200, 200),
     					new Scalar(255, 255, 255), 5);
               } 
-			else{
+			else {
             	frontCamera.setFPS(0);		//Sets FPS to 0 for front camera
                 frontSink.setEnabled(false);//Disables stream for front camera 
                 rearCamera.setFPS(30);		//Sets FPS to 30 for rear camera
